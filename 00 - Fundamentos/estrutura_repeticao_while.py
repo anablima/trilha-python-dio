@@ -1,3 +1,5 @@
+# Loop while deve ser usando quando NÃO sabemos a qtd de vezes que nosso loop será executado
+
 opcao = -1
 
 while opcao != 0:
