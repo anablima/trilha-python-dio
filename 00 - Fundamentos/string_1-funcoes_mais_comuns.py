@@ -1,30 +1,49 @@
-nome = "gUIlherME"
+# ---------- Comentários detalhados pelo assistente (pt-BR) ----------
+# Este programa demonstra as funções mais comuns para manipulação de strings em Python
+# Demonstra:
+# 1. Funções de alteração de caso (upper, lower, title)
+# 2. Funções de remoção de espaços (strip, rstrip, lstrip)
+# 3. Funções de formatação (center, join)
+# 4. Concatenação de strings
 
-# Tudo maiúscula
-print(nome.upper())
+# Exemplo 1: Alteração de caso
+nome = "gUIlherME"  # String com mistura de maiúsculas e minúsculas
 
-# Tudo minúsculo
-print(nome.lower())
+# upper(): converte todos os caracteres para maiúsculo
+print(nome.upper())  # Resultado: GUILHERME
 
-# Primeira letra em maiúsculo
-print(nome.title())
+# lower(): converte todos os caracteres para minúsculo
+print(nome.lower())  # Resultado: guilherme
 
-texto = "  Olá mundo!    "
+# title(): primeira letra de cada palavra em maiúsculo
+print(nome.title())  # Resultado: Guilherme
 
-print(texto + ".")
+# Exemplo 2: Remoção de espaços em branco
+texto = "  Olá mundo!    "  # String com espaços extras no início e fim
 
-# Eliminando todos os espaços em branco
-print(texto.strip() + ".")
+# Demonstração do texto original com ponto no final
+print(texto + ".")  # Mostra os espaços extras
 
-# Eliminando espaços em branco do lado direito da string
-print(texto.rstrip() + ".")
+# strip(): remove espaços em branco do início e fim
+print(texto.strip() + ".")  # Remove todos os espaços extras
 
-# Eliminando espaços em branco do lado esquerdo da string
-print(texto.lstrip() + ".")
+# rstrip(): remove espaços em branco apenas do lado direito
+print(texto.rstrip() + ".")  # Remove espaços apenas do final
 
+# lstrip(): remove espaços em branco apenas do lado esquerdo
+print(texto.lstrip() + ".")  # Remove espaços apenas do início
+
+# Exemplo 3: Formatação de texto
 menu = "Python"
 
-print("####" + menu + "####")
-print(menu.center(14))
-print(menu.center(14, "#")) # Centraliza a string
-print("-".join(menu)) # Junta o caractere na string
+# Concatenação simples com string literal
+print("####" + menu + "####")  # Adiciona #### antes e depois
+
+# center(): centraliza o texto em um espaço definido
+print(menu.center(14))  # Centraliza usando espaços (14 caracteres total)
+
+# center() com caractere de preenchimento
+print(menu.center(14, "#"))  # Centraliza usando # como preenchimento
+
+# join(): une caracteres entre cada letra da string
+print("-".join(menu))  # Coloca - entre cada letra: P-y-t-h-o-n
