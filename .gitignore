@@ -1,0 +1,30 @@
+# Virtual Environment
+/.venv/
+/venv/
+/env/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Configuration files
+*.ini
+*.cfg
+*.conf
+.env
+.env.*
+config.py
+
+# IDE specific files
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+
+# Local development settings
+local_settings.py
+/tools/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
