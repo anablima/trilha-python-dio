@@ -1,10 +1,15 @@
+# Função que recebe argumentos posicionais e nomeados para exibir um poema com metadados
 def exibir_poema(data_extenso, *args, **kwargs):
+    # Construindo a mensagem do poema
     texto = "\n".join(args)
+    # Construindo os metadados a partir dos argumentos nomeados
     meta_dados = "\n".join([f"{chave.title()}: {valor}" for chave, valor in kwargs.items()])
+    # Combinando tudo em uma única mensagem
     mensagem = f"{data_extenso}\n\n{texto}\n\n{meta_dados}"
+    # Exibindo a mensagem final
     print(mensagem)
 
-
+# Chamando a função com um poema e seus metadados
 exibir_poema(
     "Zen of Python",
     "Beautiful is better than ugly.",
