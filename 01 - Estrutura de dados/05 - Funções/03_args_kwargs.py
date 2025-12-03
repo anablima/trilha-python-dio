@@ -11,6 +11,7 @@ def exibir_poema(data_extenso, *args, **kwargs):
 
 # Chamando a função com um poema e seus metadados
 exibir_poema(
+    "Quarta-feira, 03 de Dezembro de 2025",
     "Zen of Python",
     "Beautiful is better than ugly.",
     "Explicit is better than implicit.",
