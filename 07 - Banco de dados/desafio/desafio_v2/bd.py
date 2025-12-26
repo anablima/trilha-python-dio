@@ -3,6 +3,8 @@ from pathlib import Path
 from sqlite3 import Connection, Cursor
 
 
+# Cria a estrutura (schema) do banco e tabelas necessárias.
+# Usa `executescript` para executar múltiplos comandos SQL de uma vez.
 def criar_bd(cursor: Cursor) -> None:
     cursor.executescript(
         """
@@ -33,6 +35,8 @@ def criar_bd(cursor: Cursor) -> None:
     )
 
 
+# Cria e retorna uma conexão SQLite localizada ao lado deste arquivo.
+# Observação: `row_factory` pode ser configurado após obter o cursor.
 def criar_conexao() -> Connection:
     ROOT_PATH = Path(__file__).parent
     return sqlite3.connect(ROOT_PATH / "db.sqlite")

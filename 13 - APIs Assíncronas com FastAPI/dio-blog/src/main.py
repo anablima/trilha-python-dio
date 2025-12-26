@@ -11,6 +11,7 @@ from src.exceptions import NotFoundPostError
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Conecta/desconecta do banco no ciclo de vida
     await database.connect()
     yield
     await database.disconnect()
@@ -58,6 +59,7 @@ Você será capaz de fazer:
 * **Excluir posts**.
 * **Limitar quantidade de posts diários** (_not implemented_).
                 """,
+    # Metadados de tags e servidores exibidos na OpenAPI
     openapi_tags=tags_metadata,
     servers=servers,
     redoc_url=None,
@@ -67,6 +69,7 @@ Você será capaz de fazer:
 
 app.add_middleware(
     CORSMiddleware,
+    # Permite CORS amplo (exemplo didático)
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
@@ -79,6 +82,7 @@ app.include_router(post.router, tags=["post"])
 
 @app.exception_handler(NotFoundPostError)
 async def not_found_post_exception_handler(request: Request, exc: NotFoundPostError):
+    # Padroniza resposta para erro de post não encontrado
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.message},

@@ -6,6 +6,7 @@ from marshmallow import ValidationError
 from src.services.user import UserService
 from src.views.user import UserSchema
 
+# Blueprint de usuários com prefixo `/users`.
 app = Blueprint("user", __name__, url_prefix="/users")
 
 
@@ -26,6 +27,7 @@ def list_users():
                 type: array
                 items: UserSchema
     """
+    # Serviço lista todos usuários ativos e serializa em lista
     service = UserService()
     users_schema = UserSchema(many=True)
     return users_schema.dump(service.list_all())
@@ -52,12 +54,15 @@ def create_user():
             application/json:
               schema: UserSchema
     """
+    # Schema para serialização e serviço de criação
     user_schema = UserSchema()
     service = UserService()
 
     try:
+        # Valida e cria usuário; captura erros de validação
         user = service.create(user_data=request.json)
     except ValidationError as exc:
         return exc.messages, HTTPStatus.UNPROCESSABLE_ENTITY
 
+    # Retorna usuário criado com 201
     return user_schema.dump(user), HTTPStatus.CREATED

@@ -8,12 +8,14 @@ class Animal:
 
 class Mamifero(Animal):
     def __init__(self, cor_pelo, **kw):
+        # Recebe atributos específicos e repassa demais para a superclasse
         self.cor_pelo = cor_pelo
-        super().__init__(**kw)
+        super().__init__(**kw)  # chama Animal.__init__ via MRO
 
 
 class Ave(Animal):
     def __init__(self, cor_bico, **kw):
+        # Mesmo padrão: inicializa próprio atributo e delega resto
         self.cor_bico = cor_bico
         super().__init__(**kw)
 
@@ -24,6 +26,8 @@ class Gato(Mamifero):
 
 class Ornitorrinco(Mamifero, Ave):
     def __init__(self, cor_bico, cor_pelo, nro_patas):
+        # Em herança múltipla, super() segue a ordem de resolução de métodos (MRO)
+        # Passa argumentos nomeados que serão consumidos pelas classes na hierarquia
         super().__init__(cor_pelo=cor_pelo, cor_bico=cor_bico, nro_patas=nro_patas)
 
 

@@ -6,6 +6,7 @@ from marshmallow import ValidationError
 from src.services.account import AccountService
 from src.views.account import AccountSchema
 
+# Blueprint para rotas de contas com prefixo `/accounts`.
 app = Blueprint("account", __name__, url_prefix="/accounts")
 
 
@@ -30,12 +31,16 @@ def create_account():
             application/json:
               schema: AccountSchema
     """
+    # Instancia serviço e schema para validar e serializar
     service = AccountService()
     account_schema = AccountSchema()
 
     try:
+        # Valida e cria a conta via serviço
         account = service.create(account_data=request.json)
     except ValidationError as exc:
+        # Retorna erros de validação com 422
         return exc.messages, HTTPStatus.UNPROCESSABLE_ENTITY
 
+    # Serializa resultado e retorna 201
     return account_schema.dump(account), HTTPStatus.CREATED

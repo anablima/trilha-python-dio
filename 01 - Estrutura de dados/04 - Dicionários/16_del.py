@@ -5,6 +5,7 @@ contatos = {
     "melaine@gmail.com": {"nome": "Melaine", "telefone": "3333-7766"},
 }
 
+    # del: remove uma chave específica ou entrada aninhada
 del contatos["guilherme@gmail.com"]["telefone"]
 del contatos["chappie@gmail.com"]
 

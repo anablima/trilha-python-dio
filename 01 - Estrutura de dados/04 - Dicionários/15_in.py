@@ -5,12 +5,14 @@ contatos = {
     "melaine@gmail.com": {"nome": "Melaine", "telefone": "3333-7766"},
 }
 
+# Operador "in" em dicionários verifica chaves (não valores)
 resultado = "guilherme@gmail.com" in contatos  # True
 print(resultado)
 
 resultado = "megui@gmail.com" in contatos  # False
 print(resultado)
 
+# Para dicionários aninhados, o "in" verifica chaves internas
 resultado = "idade" in contatos["guilherme@gmail.com"]  # False
 print(resultado)
 

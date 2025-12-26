@@ -11,11 +11,13 @@ from src.exceptions import AccountNotFoundError, BusinessError
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Conecta ao banco na inicialização e desconecta na finalização
     await database.connect()
     yield
     await database.disconnect()
 
 
+# Metadados para organizar documentação OpenAPI por tags
 tags_metadata = [
     {
         "name": "auth",
@@ -54,6 +56,7 @@ Transactions API is the microservice for recording current account transactions.
     lifespan=lifespan,
 )
 
+# Libera CORS (origens, métodos, cabeçalhos) — ajustar em produção
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -62,6 +65,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Registra rotas de autenticação, contas e transações com tags
 app.include_router(auth.router, tags=["auth"])
 app.include_router(account.router, tags=["account"])
 app.include_router(transaction.router, tags=["transaction"])
@@ -69,9 +73,11 @@ app.include_router(transaction.router, tags=["transaction"])
 
 @app.exception_handler(AccountNotFoundError)
 async def account_not_found_error_handler(request: Request, exc: AccountNotFoundError):
+    # Traduz exceção de domínio para 404 Not Found
     return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"detail": "Account not found."})
 
 
 @app.exception_handler(BusinessError)
 async def business_error_handler(request: Request, exc: BusinessError):
+    # Traduz erro de negócio para 409 Conflict com mensagem detalhada
     return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": str(exc)})

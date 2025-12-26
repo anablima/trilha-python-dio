@@ -1,10 +1,12 @@
 class Pessoa:
     def __init__(self, nome, ano_nascimento):
         self.nome = nome
+        # Atributo interno por convenção: não expor diretamente
         self._ano_nascimento = ano_nascimento
 
     @property
     def idade(self):
+        # Propriedade calculada: deriva idade com base no ano de nascimento
         _ano_atual = 2022
         return _ano_atual - self._ano_nascimento
 

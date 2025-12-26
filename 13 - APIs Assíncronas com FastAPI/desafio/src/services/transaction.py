@@ -9,21 +9,26 @@ from src.schemas.transaction import TransactionIn
 
 class TransactionService:
     async def read_all(self, account_id: int, limit: int, skip: int = 0) -> list[Record]:
+        # Lista transações filtradas por conta com paginação
         query = transactions.select().where(transactions.c.account_id == account_id).limit(limit).offset(skip)
         return await database.fetch_all(query)
 
     @database.transaction()
     async def create(self, transaction: TransactionIn) -> Record:
+        # Executa criação de transação de forma atômica
         query = accounts.select().where(accounts.c.id == transaction.account_id)
         account = await database.fetch_one(query)
         if not account:
+            # Regras de domínio: conta deve existir
             raise AccountNotFoundError
 
         if transaction.type == TransactionType.WITHDRAWAL:
+            # Valida saldo suficiente para saque
             balance = float(account.balance) - transaction.amount
             if balance < 0:
                 raise BusinessError("Operation not carried out due to lack of balance")
         else:
+            # Depósito soma ao saldo
             balance = float(account.balance) + transaction.amount
 
         # Create transaction entry
@@ -31,14 +36,17 @@ class TransactionService:
         # Update account balance
         await self.__update_account_balance(transaction.account_id, balance)
 
+        # Retorna transação criada
         query = transactions.select().where(transactions.c.id == transaction_id)
         return await database.fetch_one(query)
 
     async def __update_account_balance(self, account_id: int, balance: float) -> None:
+        # Atualiza o saldo da conta
         command = accounts.update().where(accounts.c.id == account_id).values(balance=balance)
         await database.execute(command)
 
     async def __register_transaction(self, transaction: TransactionIn) -> int:
+        # Cria o registro da transação (depósito/saque)
         command = transactions.insert().values(
             account_id=transaction.account_id,
             type=transaction.type,

@@ -1,5 +1,6 @@
 tupla = ("p", "y", "t", "h", "o", "n",)
 
+# Fatiamento em tuplas: [inicio:fim:passo]
 print(tupla[2:])  # ("t", "h", "o", "n")
 print(tupla[:2])  # ("p", "y")
 print(tupla[1:3])  # ("y", "t")

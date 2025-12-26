@@ -5,5 +5,6 @@ contatos = {
     "melaine@gmail.com": {"nome": "Melaine", "telefone": "3333-7766"},
 }
 
+# clear(): remove todas as chaves/valores (opera in-place)
 contatos.clear()
 print(contatos)  # {}

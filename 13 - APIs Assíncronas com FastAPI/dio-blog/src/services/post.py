@@ -8,10 +8,12 @@ from src.schemas.post import PostIn, PostUpdateIn
 
 class PostService:
     async def read_all(self, published: bool, limit: int, skip: int = 0) -> list[Record]:
+        # Lista posts filtrando por `published` com paginação
         query = posts.select().where(posts.c.published == published).limit(limit).offset(skip)
         return await database.fetch_all(query)
 
     async def create(self, post: PostIn) -> int:
+        # Insere novo post e retorna seu ID
         command = posts.insert().values(
             title=post.title,
             content=post.content,
@@ -21,9 +23,11 @@ class PostService:
         return await database.execute(command)
 
     async def read(self, id: int) -> Record:
+        # Retorna post por ID (levanta erro se não existir)
         return await self.__get_by_id(id)
 
     async def update(self, id: int, post: PostUpdateIn) -> Record:
+        # Atualiza campos presentes no payload (`exclude_unset`)
         total = await self.count(id)
         if not total:
             raise NotFoundPostError
@@ -35,15 +39,18 @@ class PostService:
         return await self.__get_by_id(id)
 
     async def delete(self, id: int) -> None:
+        # Remove o post por ID (idempotente)
         command = posts.delete().where(posts.c.id == id)
         await database.execute(command)
 
     async def count(self, id: int) -> int:
+        # Conta registros por ID via SQL textual parametrizado
         query = "select count(id) as total from posts where id = :id"
         result = await database.fetch_one(query, {"id": id})
         return result.total
 
     async def __get_by_id(self, id: int) -> Record:
+        # Busca post e levanta `NotFoundPostError` se ausente
         query = posts.select().where(posts.c.id == id)
         post = await database.fetch_one(query)
         if not post:

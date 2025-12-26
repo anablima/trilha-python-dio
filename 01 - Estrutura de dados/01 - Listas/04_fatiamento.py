@@ -1,5 +1,6 @@
 lista = ["p", "y", "t", "h", "o", "n"]
 
+# Fatiamento de listas: [inicio:fim:passo]
 print(lista[2:])  # ["t", "h", "o", "n"]
 print(lista[:2])  # ["p", "y"]
 print(lista[1:3])  # ["y", "t"]

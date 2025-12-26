@@ -4,14 +4,18 @@ from pathlib import Path
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Diretório base do projeto (para construir caminhos relativos)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Chave secreta obtida do ambiente (fallback apenas para dev)
 SECRET_KEY = os.environ.get("SECRET_KEY", default="secret")
 
+# Debug ativo quando não está rodando na Render (exemplo de deploy)
 DEBUG = "RENDER" not in os.environ
 
 ALLOWED_HOSTS = []
 
+# Se houver hostname externo (Render), adiciona em ALLOWED_HOSTS
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -20,12 +24,14 @@ if RENDER_EXTERNAL_HOSTNAME:
 # Application definition
 
 INSTALLED_APPS = [
+    # Admin simplificado
     "django.contrib.admin.apps.SimpleAdminConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Apps do projeto
     "polls.apps.PollsConfig",
     "contacts.apps.ContactsConfig",
     "accounts.apps.AccountsConfig",
@@ -33,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # WhiteNoise para servir estáticos em produção
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -73,6 +80,7 @@ DATABASES = {
     }
 }
 
+# Em produção, configura banco via URL (ex.: Postgres) com cache de conexões
 if not DEBUG:
     DATABASES["default"] = dj_database_url.config(
         default=os.getenv("DATABASE_URL"),
@@ -118,9 +126,11 @@ STATIC_URL = "static/"
 
 if not DEBUG:
     # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+    # Diretório de arquivos estáticos coletados
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
     # and renames the files with unique names for each version to support long-term caching
+    # Backend de armazenamento para cache eficiente de estáticos
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type

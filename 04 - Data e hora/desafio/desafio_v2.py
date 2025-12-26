@@ -1,9 +1,16 @@
+"""
+Versão 2 do sistema bancário com melhorias:
+- Limite de transações diárias via `Historico.transacoes_do_dia`
+- Registro de data/hora usando UTC (`datetime.utcnow`) para consistência
+"""
+
 import textwrap
 from abc import ABC, abstractmethod
 from datetime import datetime
 
 
 class ContasIterador:
+    # Iterador customizado para formatar a listagem de contas
     def __init__(self, contas):
         self.contas = contas
         self._index = 0
@@ -14,6 +21,7 @@ class ContasIterador:
     def __next__(self):
         try:
             conta = self.contas[self._index]
+            # Retorna dados formatados da conta atual
             return f"""\
             Agência:\t{conta.agencia}
             Número:\t\t{conta.numero}
@@ -27,12 +35,14 @@ class ContasIterador:
 
 
 class Cliente:
+    # Cliente com contas e controle de transações
     def __init__(self, endereco):
         self.endereco = endereco
         self.contas = []
         self.indice_conta = 0
 
     def realizar_transacao(self, conta, transacao):
+        # V2: bloqueia se exceder o número de transações do dia
         if len(conta.historico.transacoes_do_dia()) >= 2:
             print("\n@@@ Você excedeu o número de transações permitidas para hoje! @@@")
             return
@@ -44,6 +54,7 @@ class Cliente:
 
 
 class PessoaFisica(Cliente):
+    # Cliente pessoa física
     def __init__(self, nome, data_nascimento, cpf, endereco):
         super().__init__(endereco)
         self.nome = nome
@@ -52,6 +63,7 @@ class PessoaFisica(Cliente):
 
 
 class Conta:
+    # Modelo base de conta
     def __init__(self, numero, cliente):
         self._saldo = 0
         self._numero = numero
@@ -84,6 +96,7 @@ class Conta:
         return self._historico
 
     def sacar(self, valor):
+        # Saque com validações
         saldo = self.saldo
         excedeu_saldo = valor > saldo
 
@@ -101,6 +114,7 @@ class Conta:
         return False
 
     def depositar(self, valor):
+        # Depósito com validação
         if valor > 0:
             self._saldo += valor
             print("\n=== Depósito realizado com sucesso! ===")
@@ -112,6 +126,7 @@ class Conta:
 
 
 class ContaCorrente(Conta):
+    # Conta corrente com limites
     def __init__(self, numero, cliente, limite=500, limite_saques=3):
         super().__init__(numero, cliente)
         self._limite = limite
@@ -122,6 +137,7 @@ class ContaCorrente(Conta):
         return cls(numero, cliente, limite, limite_saques)
 
     def sacar(self, valor):
+        # Verifica o número de saques já registrados
         numero_saques = len(
             [
                 transacao
@@ -153,6 +169,7 @@ class ContaCorrente(Conta):
 
 
 class Historico:
+    # Histórico das transações da conta
     def __init__(self):
         self._transacoes = []
 
@@ -161,6 +178,7 @@ class Historico:
         return self._transacoes
 
     def adicionar_transacao(self, transacao):
+        # V2: registra data/hora em UTC para facilitar comparações no dia
         self._transacoes.append(
             {
                 "tipo": transacao.__class__.__name__,
@@ -170,6 +188,7 @@ class Historico:
         )
 
     def gerar_relatorio(self, tipo_transacao=None):
+        # Gera relatório opcionalmente filtrado por tipo
         for transacao in self._transacoes:
             if (
                 tipo_transacao is None
@@ -178,6 +197,7 @@ class Historico:
                 yield transacao
 
     def transacoes_do_dia(self):
+        # Retorna transações cuja data (UTC) coincide com a data UTC atual
         data_atual = datetime.utcnow().date()
         transacoes = []
         for transacao in self._transacoes:
@@ -190,6 +210,7 @@ class Historico:
 
 
 class Transacao(ABC):
+    # Interface para transações
     @property
     @abstractmethod
     def valor(self):
@@ -201,6 +222,7 @@ class Transacao(ABC):
 
 
 class Saque(Transacao):
+    # Transação de saque
     def __init__(self, valor):
         self._valor = valor
 
@@ -209,6 +231,7 @@ class Saque(Transacao):
         return self._valor
 
     def registrar(self, conta):
+        # Executa saque e registra se houver sucesso
         sucesso_transacao = conta.sacar(self.valor)
 
         if sucesso_transacao:
@@ -216,6 +239,7 @@ class Saque(Transacao):
 
 
 class Deposito(Transacao):
+    # Transação de depósito
     def __init__(self, valor):
         self._valor = valor
 
@@ -224,6 +248,7 @@ class Deposito(Transacao):
         return self._valor
 
     def registrar(self, conta):
+        # Executa depósito e registra se houver sucesso
         sucesso_transacao = conta.depositar(self.valor)
 
         if sucesso_transacao:
@@ -231,6 +256,7 @@ class Deposito(Transacao):
 
 
 def log_transacao(func):
+    # Decorador para logar chamada de funções com timestamp
     def envelope(*args, **kwargs):
         resultado = func(*args, **kwargs)
         print(f"{datetime.now()}: {func.__name__.upper()}")
@@ -240,6 +266,7 @@ def log_transacao(func):
 
 
 def menu():
+    # Monta o menu e lê opção do usuário
     menu = """\n
     ================ MENU ================
     [d]\tDepositar
@@ -254,11 +281,13 @@ def menu():
 
 
 def filtrar_cliente(cpf, clientes):
+    # Retorna o primeiro cliente com o CPF informado
     clientes_filtrados = [cliente for cliente in clientes if cliente.cpf == cpf]
     return clientes_filtrados[0] if clientes_filtrados else None
 
 
 def recuperar_conta_cliente(cliente):
+    # Retorna a primeira conta do cliente (se existir)
     if not cliente.contas:
         print("\n@@@ Cliente não possui conta! @@@")
         return
@@ -269,6 +298,7 @@ def recuperar_conta_cliente(cliente):
 
 @log_transacao
 def depositar(clientes):
+    # Fluxo de depósito
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -288,6 +318,7 @@ def depositar(clientes):
 
 @log_transacao
 def sacar(clientes):
+    # Fluxo de saque
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -307,6 +338,7 @@ def sacar(clientes):
 
 @log_transacao
 def exibir_extrato(clientes):
+    # Exibe transações com data e saldo
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -335,6 +367,7 @@ def exibir_extrato(clientes):
 
 @log_transacao
 def criar_cliente(clientes):
+    # Cria um novo cliente
     cpf = input("Informe o CPF (somente número): ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -359,6 +392,7 @@ def criar_cliente(clientes):
 
 @log_transacao
 def criar_conta(numero_conta, clientes, contas):
+    # Cria uma conta corrente com limites padrão
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -376,12 +410,14 @@ def criar_conta(numero_conta, clientes, contas):
 
 
 def listar_contas(contas):
+    # Lista contas utilizando o iterador customizado
     for conta in ContasIterador(contas):
         print("=" * 100)
         print(textwrap.dedent(str(conta)))
 
 
 def main():
+    # Loop principal de interação via menu
     clientes = []
     contas = []
 

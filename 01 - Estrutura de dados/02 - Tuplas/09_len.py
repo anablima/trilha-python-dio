@@ -6,4 +6,5 @@ linguagens = (
     "csharp",
 )
 
+# `len(seq)`: tamanho da sequência
 print(len(linguagens))  # 5

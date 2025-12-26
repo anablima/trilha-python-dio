@@ -1,5 +1,6 @@
 nome = "Guilherme"
 
+# String multilinha (triple quotes) com f-string
 mensagem = f"""
    Olá meu nome é {nome},
  Eu estou aprendendo Python.

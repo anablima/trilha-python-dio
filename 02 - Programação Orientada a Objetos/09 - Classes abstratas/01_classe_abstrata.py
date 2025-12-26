@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class ControleRemoto(ABC):
+    # Classe abstrata: não pode ser instanciada diretamente
     @abstractmethod
     def ligar(self):
         pass
@@ -13,6 +14,7 @@ class ControleRemoto(ABC):
     @property
     @abstractmethod
     def marca(self):
+        # Propriedade abstrata: subclasses devem implementar
         pass
 
 

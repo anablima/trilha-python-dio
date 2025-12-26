@@ -12,6 +12,7 @@ ALGORITHM = "HS256"
 
 
 class AccessToken(BaseModel):
+    # Claims padrão de um JWT
     iss: str
     sub: int
     aud: str
@@ -22,10 +23,12 @@ class AccessToken(BaseModel):
 
 
 class JWTToken(BaseModel):
+    # Envolve o token de acesso (payload decodificado)
     access_token: AccessToken
 
 
 def sign_jwt(user_id: int) -> JWTToken:
+    # Gera JWT curto (30 min) para um `sub` (user_id) específico
     now = time.time()
     payload = {
         "iss": "desafio-bank.com.br",
@@ -41,6 +44,7 @@ def sign_jwt(user_id: int) -> JWTToken:
 
 
 async def decode_jwt(token: str) -> JWTToken | None:
+    # Valida assinatura, audiência e expiração; retorna payload estruturado
     try:
         decoded_token = jwt.decode(token, SECRET, audience="desafio-bank", algorithms=[ALGORITHM])
         _token = JWTToken.model_validate({"access_token": decoded_token})
@@ -54,6 +58,7 @@ class JWTBearer(HTTPBearer):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request) -> JWTToken:
+        # Extrai cabeçalho Authorization e valida esquema Bearer
         authorization = request.headers.get("Authorization", "")
         scheme, _, credentials = authorization.partition(" ")
 
@@ -81,10 +86,12 @@ class JWTBearer(HTTPBearer):
 async def get_current_user(
     token: Annotated[JWTToken, Depends(JWTBearer())],
 ) -> dict[str, int]:
+    # Fornece usuário atual a partir do token validado (para dependências)
     return {"user_id": token.access_token.sub}
 
 
 def login_required(current_user: Annotated[dict[str, int], Depends(get_current_user)]):
+    # Garante presença de usuário corrente ou retorna 403
     if not current_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     return current_user

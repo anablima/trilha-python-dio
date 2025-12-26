@@ -1,19 +1,28 @@
+"""
+Versão 2 do sistema bancário:
+- Mesmo fluxo geral (clientes, contas, histórico, transações, decoradores)
+- Extrato usa gerador com filtro de tipo de transação
+"""
+
 import textwrap
 from abc import ABC, abstractmethod
 from datetime import datetime
 
 
 class ContasIterador:
+    # Iterador customizado para formatar a listagem de contas
     def __init__(self, contas):
         self.contas = contas
         self._index = 0
 
     def __iter__(self):
+        # Retorna o próprio iterador
         return self
 
     def __next__(self):
         try:
             conta = self.contas[self._index]
+            # Retorna dados formatados da conta atual
             return f"""\
             Agência:\t{conta.agencia}
             Número:\t\t{conta.numero}
@@ -21,25 +30,31 @@ class ContasIterador:
             Saldo:\t\tR$ {conta.saldo:.2f}
         """
         except IndexError:
+            # Sinaliza fim da iteração
             raise StopIteration
         finally:
+            # Avança o índice para próxima conta
             self._index += 1
 
 
 class Cliente:
+    # Cliente com contas associadas
     def __init__(self, endereco):
         self.endereco = endereco
         self.contas = []
         self.indice_conta = 0
 
     def realizar_transacao(self, conta, transacao):
+        # Executa a transação informada sobre a conta
         transacao.registrar(conta)
 
     def adicionar_conta(self, conta):
+        # Adiciona conta ao cliente
         self.contas.append(conta)
 
 
 class PessoaFisica(Cliente):
+    # Cliente pessoa física
     def __init__(self, nome, data_nascimento, cpf, endereco):
         super().__init__(endereco)
         self.nome = nome
@@ -48,6 +63,7 @@ class PessoaFisica(Cliente):
 
 
 class Conta:
+    # Modelo base de conta
     def __init__(self, numero, cliente):
         self._saldo = 0
         self._numero = numero
@@ -57,6 +73,7 @@ class Conta:
 
     @classmethod
     def nova_conta(cls, cliente, numero):
+        # Fábrica de contas
         return cls(numero, cliente)
 
     @property
@@ -80,6 +97,7 @@ class Conta:
         return self._historico
 
     def sacar(self, valor):
+        # Saque com validações
         saldo = self.saldo
         excedeu_saldo = valor > saldo
 
@@ -97,6 +115,7 @@ class Conta:
         return False
 
     def depositar(self, valor):
+        # Depósito com validação de valor positivo
         if valor > 0:
             self._saldo += valor
             print("\n=== Depósito realizado com sucesso! ===")
@@ -108,12 +127,14 @@ class Conta:
 
 
 class ContaCorrente(Conta):
+    # Conta corrente com limites por valor e quantidade de saques
     def __init__(self, numero, cliente, limite=500, limite_saques=3):
         super().__init__(numero, cliente)
         self._limite = limite
         self._limite_saques = limite_saques
 
     def sacar(self, valor):
+        # Verifica o número de saques já registrados
         numero_saques = len(
             [transacao for transacao in self.historico.transacoes if transacao["tipo"] == Saque.__name__]
         )
@@ -128,11 +149,13 @@ class ContaCorrente(Conta):
             print("\n@@@ Operação falhou! Número máximo de saques excedido. @@@")
 
         else:
+            # Delega a lógica de saque para a classe base
             return super().sacar(valor)
 
         return False
 
     def __str__(self):
+        # Representação formatada para listagem
         return f"""\
             Agência:\t{self.agencia}
             C/C:\t\t{self.numero}
@@ -141,6 +164,7 @@ class ContaCorrente(Conta):
 
 
 class Historico:
+    # Armazena transações realizadas na conta
     def __init__(self):
         self._transacoes = []
 
@@ -149,6 +173,8 @@ class Historico:
         return self._transacoes
 
     def adicionar_transacao(self, transacao):
+        # Registra tipo, valor e data/hora da transação
+        # Observação: a máscara usa %s para segundos; normalmente usa-se %S
         self._transacoes.append(
             {
                 "tipo": transacao.__class__.__name__,
@@ -158,12 +184,14 @@ class Historico:
         )
 
     def gerar_relatorio(self, tipo_transacao=None):
+        # Gera transações filtradas por tipo (se informado), usando gerador
         for transacao in self._transacoes:
             if tipo_transacao is None or transacao["tipo"].lower() == tipo_transacao.lower():
                 yield transacao
 
 
 class Transacao(ABC):
+    # Contrato para transações: valor e registro na conta
     @property
     @abstractmethod
     def valor(self):
@@ -175,6 +203,7 @@ class Transacao(ABC):
 
 
 class Saque(Transacao):
+    # Transação de saque
     def __init__(self, valor):
         self._valor = valor
 
@@ -183,6 +212,7 @@ class Saque(Transacao):
         return self._valor
 
     def registrar(self, conta):
+        # Executa saque e registra se houver sucesso
         sucesso_transacao = conta.sacar(self.valor)
 
         if sucesso_transacao:
@@ -190,6 +220,7 @@ class Saque(Transacao):
 
 
 class Deposito(Transacao):
+    # Transação de depósito
     def __init__(self, valor):
         self._valor = valor
 
@@ -198,6 +229,7 @@ class Deposito(Transacao):
         return self._valor
 
     def registrar(self, conta):
+        # Executa depósito e registra se houver sucesso
         sucesso_transacao = conta.depositar(self.valor)
 
         if sucesso_transacao:
@@ -205,6 +237,7 @@ class Deposito(Transacao):
 
 
 def log_transacao(func):
+    # Decorador para logar chamada de funções com timestamp
     def envelope(*args, **kwargs):
         resultado = func(*args, **kwargs)
         print(f"{datetime.now()}: {func.__name__.upper()}")
@@ -214,6 +247,7 @@ def log_transacao(func):
 
 
 def menu():
+    # Monta o menu e lê opção do usuário
     menu = """\n
     ================ MENU ================
     [d]\tDepositar
@@ -228,11 +262,13 @@ def menu():
 
 
 def filtrar_cliente(cpf, clientes):
+    # Retorna o primeiro cliente com o CPF informado
     clientes_filtrados = [cliente for cliente in clientes if cliente.cpf == cpf]
     return clientes_filtrados[0] if clientes_filtrados else None
 
 
 def recuperar_conta_cliente(cliente):
+    # Retorna a primeira conta do cliente (se existir)
     if not cliente.contas:
         print("\n@@@ Cliente não possui conta! @@@")
         return
@@ -243,6 +279,7 @@ def recuperar_conta_cliente(cliente):
 
 @log_transacao
 def depositar(clientes):
+    # Fluxo de depósito: identifica cliente, cria transação e registra
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -262,6 +299,7 @@ def depositar(clientes):
 
 @log_transacao
 def sacar(clientes):
+    # Fluxo de saque: identifica cliente, cria transação e registra
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -281,6 +319,7 @@ def sacar(clientes):
 
 @log_transacao
 def exibir_extrato(clientes):
+    # Exibe transações filtradas por tipo e saldo da conta
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -293,6 +332,7 @@ def exibir_extrato(clientes):
         return
 
     print("\n================ EXTRATO ================")
+    # V2: usa o gerador com filtro por tipo (ex.: apenas saques)
     extrato = ""
     tem_transacao = False
     for transacao in conta.historico.gerar_relatorio(tipo_transacao="saque"):
@@ -309,6 +349,7 @@ def exibir_extrato(clientes):
 
 @log_transacao
 def criar_cliente(clientes):
+    # Cria um novo cliente
     cpf = input("Informe o CPF (somente número): ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -329,6 +370,7 @@ def criar_cliente(clientes):
 
 @log_transacao
 def criar_conta(numero_conta, clientes, contas):
+    # Cria uma nova conta corrente para um cliente existente
     cpf = input("Informe o CPF do cliente: ")
     cliente = filtrar_cliente(cpf, clientes)
 
@@ -344,12 +386,14 @@ def criar_conta(numero_conta, clientes, contas):
 
 
 def listar_contas(contas):
+    # Lista contas utilizando o iterador customizado
     for conta in ContasIterador(contas):
         print("=" * 100)
         print(textwrap.dedent(str(conta)))
 
 
 def main():
+    # Loop principal de interação via menu
     clientes = []
     contas = []
 

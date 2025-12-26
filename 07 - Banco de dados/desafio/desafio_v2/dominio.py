@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Self
 
 
+# Modelos de domínio usando `dataclass` para reduzir boilerplate.
+# `Cliente` representa atributos comuns; PF/PJ especializam com campos próprios.
 @dataclass
 class Cliente:
     email: str
@@ -9,6 +11,8 @@ class Cliente:
     status: str
 
     def __str__(self) -> str:
+        # Constrói uma apresentação amigável percorrendo atributos do objeto.
+        # Substitui underscores por espaços e capitaliza o nome do campo.
         texto = ""
         for campo, valor in self.__dict__.items():
             campo = campo.replace("_", " ").capitalize()
@@ -24,6 +28,8 @@ class PessoaFisica(Cliente):
 
     @classmethod
     def converter_objeto_bd(cls, objeto_db: dict) -> Self:
+        # Converte um dicionário vindo do banco (Row/dict) em instância de PF.
+        # Espera chaves compatíveis com nomes dos campos.
         return cls(
             email=objeto_db["email"],
             telefone=objeto_db["telefone"],
@@ -42,6 +48,7 @@ class PessoaJuridica(Cliente):
 
     @classmethod
     def converter_objeto_bd(cls, objeto_db: dict) -> Self:
+        # Converte um dicionário vindo do banco em instância de PJ.
         return cls(
             email=objeto_db["email"],
             telefone=objeto_db["telefone"],

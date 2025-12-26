@@ -1,9 +1,18 @@
+"""
+Tratamento de erros ao abrir arquivos:
+- FileNotFoundError: arquivo não existe
+- IsADirectoryError: caminho aponta para diretório, não arquivo
+- IOError: erros gerais de I/O
+- Exception: captura qualquer outro erro não previsto
+"""
+
 from pathlib import Path
 
 ROOT_PATH = Path(__file__).parent
 
 
 try:
+    # Tenta abrir arquivo em subdiretório
     arquivo = open(ROOT_PATH / "novo-diretorio" / "novo.txt", "r")
 except FileNotFoundError as exc:
     print("Arquivo não encontrado!")

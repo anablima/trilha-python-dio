@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 
+# Modelo de enquete com pergunta, data de publicação e status de atividade.
 class Question(models.Model):
     question_text = models.CharField("Texto da questão", max_length=200)
     pub_date = models.DateTimeField("Data da publicação")
@@ -14,12 +15,14 @@ class Question(models.Model):
         verbose_name_plural = "Questões"
 
     def was_published_recently(self):
+        # Considera "recentemente" se publicada nas últimas 24 horas
         return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
 
     def __str__(self) -> str:
         return self.question_text
 
 
+# Opções de resposta vinculadas à `Question`.
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name="Questão")
     choice_text = models.CharField("Descrição", max_length=200)

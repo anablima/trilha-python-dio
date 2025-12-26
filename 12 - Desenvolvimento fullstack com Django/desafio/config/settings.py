@@ -1,14 +1,18 @@
 import os
 from pathlib import Path
 
+# Diretório base do projeto (para caminhos relativos a templates/DB/etc.)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Chave secreta: ideal manter em variável de ambiente em produção
 SECRET_KEY = os.environ.get("SECRET_KEY", default="secret")
 
+# Modo debug ativo (não recomendado em produção)
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Apps instalados: Django core + terceiros + app local
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -20,6 +24,7 @@ INSTALLED_APPS = [
     "cards.apps.CardsConfig",
 ]
 
+# Middlewares padrão do Django para segurança, sessões e CSRF
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -30,8 +35,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# Módulo de URLs raiz
 ROOT_URLCONF = "config.urls"
 
+# Configuração de templates: pasta global + templates de apps
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -50,6 +57,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+# Banco SQLite local simples para desenvolvimento
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -57,6 +65,7 @@ DATABASES = {
     }
 }
 
+# Validadores de senha (boas práticas de segurança)
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -72,6 +81,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Localização e fuso horário
 LANGUAGE_CODE = "pt-br"
 
 TIME_ZONE = "America/Sao_Paulo"
@@ -80,10 +90,12 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Arquivos estáticos
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# URLs de redirecionamento após login/logout
 LOGIN_REDIRECT_URL = "home"
 
 LOGOUT_REDIRECT_URL = "home"

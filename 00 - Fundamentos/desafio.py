@@ -13,11 +13,14 @@ extrato = ""
 numero_saques = 0
 LIMITE_SAQUES = 3
 
+# Loop principal do sistema bancário
+# Usa while True para mostrar o menu repetidamente até o usuário escolher sair
 while True:
 
     opcao = input(menu)
 
     if opcao == "d":
+        # Depósito: soma valor positivo ao saldo e registra no extrato
         valor = float(input("Informe o valor do depósito: "))
 
         if valor > 0:
@@ -28,6 +31,7 @@ while True:
             print("Operação falhou! O valor informado é inválido.")
 
     elif opcao == "s":
+        # Saque: valida saldo, limite por operação e limite diário de saques
         valor = float(input("Informe o valor do saque: "))
 
         excedeu_saldo = valor > saldo
@@ -54,13 +58,16 @@ while True:
             print("Operação falhou! O valor informado é inválido.")
 
     elif opcao == "e":
+        # Extrato: exibe todas as movimentações e o saldo atual
         print("\n================ EXTRATO ================")
         print("Não foram realizadas movimentações." if not extrato else extrato)
         print(f"\nSaldo: R$ {saldo:.2f}")
         print("==========================================")
 
     elif opcao == "q":
+        # Sair: interrompe o loop principal
         break
 
     else:
+        # Opção inválida: orienta o usuário e reinicia o loop
         print("Operação inválida, por favor selecione novamente a operação desejada.")
